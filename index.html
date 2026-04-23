@@ -1,2065 +1,242 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Матеон — школьная математика</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap');
-
-    :root {
-      --bg-1: #12051f;
-      --bg-2: #0f1d22;
-      --surface: rgba(16, 20, 28, 0.78);
-      --surface-strong: rgba(23, 29, 39, 0.92);
-      --line: rgba(255, 255, 255, 0.12);
-      --text: #eef6f0;
-      --muted: #9eb1ab;
-      --green: #3ddc84;
-      --danger: #ff6f7d;
-      --warning: #ffb84d;
-      --shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-      --radius-xl: 28px;
-      --transition: 220ms ease;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      color: var(--text);
-      font-family: "Manrope", "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(140, 68, 255, 0.32), transparent 28%),
-        radial-gradient(circle at 88% 15%, rgba(61, 220, 132, 0.22), transparent 24%),
-        linear-gradient(135deg, #15051f 0%, #2f0a47 28%, #0b2f27 70%, #071714 100%);
-      background-size: 160% 160%;
-      animation: gradientFlow 14s ease-in-out infinite;
-      overflow-x: hidden;
-    }
-
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      width: 420px;
-      height: 420px;
-      border-radius: 50%;
-      filter: blur(90px);
-      opacity: 0.18;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    body::before {
-      top: -100px;
-      left: -120px;
-      background: #a34cff;
-      animation: floatOrb 16s ease-in-out infinite;
-    }
-
-    body::after {
-      right: -80px;
-      bottom: -130px;
-      background: #24d07a;
-      animation: floatOrb 20s ease-in-out infinite reverse;
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-    }
-
-    .app-shell {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-    }
-
-    .workspace {
-      width: 100%;
-      padding: 20px;
-    }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 18px;
-      align-items: center;
-      padding: 16px 18px;
-      background: rgba(9, 12, 18, 0.65);
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(22px);
-      position: sticky;
-      top: 18px;
-      z-index: 20;
-    }
-
-    .brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      font-family: "Comfortaa", sans-serif;
-      font-size: 1.5rem;
-      background: linear-gradient(145deg, rgba(61, 220, 132, 0.95), rgba(120, 255, 186, 0.9));
-      color: #062212;
-      box-shadow: 0 16px 30px rgba(61, 220, 132, 0.25);
-    }
-
-    .eyebrow {
-      margin: 0 0 4px;
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #8bcdb0;
-    }
-
-    .brand-title {
-      margin: 0;
-      font-family: "Comfortaa", sans-serif;
-      font-size: clamp(1.2rem, 2.4vw, 1.7rem);
-    }
-
-    .topnav {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .nav-chip,
-    .button,
-    .ghost-button,
-    .icon-button,
-    .mode-option {
-      transition: transform var(--transition), background var(--transition), box-shadow var(--transition), opacity var(--transition);
-    }
-
-    .nav-chip {
-      padding: 12px 18px;
-      border-radius: 999px;
-      background: rgba(61, 220, 132, 0.14);
-      color: #dffff0;
-      border: 1px solid rgba(61, 220, 132, 0.24);
-      font-weight: 700;
-    }
-
-    .nav-chip.active,
-    .nav-chip:hover {
-      background: rgba(61, 220, 132, 0.18);
-      border-color: rgba(61, 220, 132, 0.35);
-      transform: translateY(-1px);
-    }
-
-    .topbar-right,
-    .header-stats,
-    .actions-row,
-    .tag-row,
-    .chip-row,
-    .course-meta,
-    .lesson-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .topbar-right {
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .header-stats {
-      justify-content: flex-end;
-    }
-
-    .stat-pill,
-    .meta-tag,
-    .status-tag,
-    .soft-chip {
-      padding: 9px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.9rem;
-    }
-
-    .icon-button {
-      width: 50px;
-      height: 50px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, #39d77d, #1fa95f);
-      color: #05210f;
-      font-size: 1.25rem;
-      font-weight: 800;
-      box-shadow: 0 16px 26px rgba(29, 167, 95, 0.3);
-    }
-
-    .button,
-    .ghost-button {
-      padding: 13px 18px;
-      border-radius: 16px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .button {
-      background: linear-gradient(180deg, var(--green), #1fb765);
-      color: #05210f;
-      box-shadow: 0 14px 24px rgba(61, 220, 132, 0.22);
-    }
-
-    .ghost-button {
-      background: rgba(61, 220, 132, 0.14);
-      color: #dffff0;
-      border: 1px solid rgba(61, 220, 132, 0.24);
-    }
-
-    .button:hover,
-    .icon-button:hover,
-    .ghost-button:hover,
-    .mode-option:hover {
-      transform: translateY(-2px) scale(1.01);
-    }
-
-    .button:active,
-    .icon-button:active,
-    .ghost-button:active,
-    .mode-option:active {
-      transform: translateY(1px) scale(0.98);
-    }
-
-    .content {
-      padding: 26px 4px 40px;
-      animation: fadeUp 360ms ease;
-    }
-
-    .panel,
-    .metric-card,
-    .mini-card,
-    .course-card,
-    .lesson-card,
-    .theory-card,
-    .achievement-card,
-    .profile-card,
-    .module-card,
-    .lesson-copy,
-    .task-panel,
-    .theory-article,
-    .formula-card,
-    .example-card {
-      background: rgba(16, 20, 28, 0.78);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      padding: 22px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .hero,
-    .detail-grid,
-    .lesson-layout,
-    .theory-grid {
-      display: grid;
-      grid-template-columns: 1.3fr 0.9fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .stats-grid,
-    .course-grid,
-    .module-grid,
-    .achievement-grid {
-      display: grid;
-      gap: 18px;
-    }
-
-    .stats-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin-bottom: 24px;
-    }
-
-    .course-grid {
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-
-    .module-grid,
-    .achievement-grid {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .section-head,
-    .lesson-row-head,
-    .sidebar-head,
-    .modal-head {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .section-title,
-    .card-title,
-    .course-card h3,
-    .module-card h3,
-    .lesson-card h3,
-    .theory-card h3 {
-      margin: 0 0 10px;
-    }
-
-    .hero-copy h2 {
-      margin: 0 0 14px;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      line-height: 1.05;
-      font-family: "Comfortaa", sans-serif;
-    }
-
-    .hero-copy p,
-    .course-card p,
-    .module-card p,
-    .theory-article p,
-    .lesson-copy p,
-    .theory-article li {
-      line-height: 1.7;
-      color: var(--muted);
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-      margin: 14px 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #3ce08a, #8bffb2);
-      box-shadow: 0 0 18px rgba(61, 220, 132, 0.4);
-    }
-
-    .status-tag.success {
-      background: rgba(61, 220, 132, 0.16);
-      border-color: rgba(61, 220, 132, 0.3);
-      color: #b6ffcf;
-    }
-
-    .status-tag.warning {
-      background: rgba(255, 184, 77, 0.16);
-      border-color: rgba(255, 184, 77, 0.3);
-      color: #ffd692;
-    }
-
-    .status-tag.danger {
-      background: rgba(255, 111, 125, 0.18);
-      border-color: rgba(255, 111, 125, 0.34);
-      color: #ffced4;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      bottom: 14px;
-      width: min(390px, calc(100vw - 28px));
-      background: rgba(11, 16, 22, 0.96);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      padding: 22px;
-      z-index: 60;
-      overflow-y: auto;
-      transform: translateX(calc(100% + 20px));
-      transition: transform 280ms ease;
-      backdrop-filter: blur(28px);
-    }
-
-    .sidebar.open {
-      transform: translateX(0);
-    }
-
-    .sidebar-scrim {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.42);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 220ms ease;
-      z-index: 50;
-    }
-
-    .sidebar-scrim.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .sidebar-stack,
-    .sidebar-nav,
-    .theory-sidebar,
-    .formula-list,
-    .lesson-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .mode-switch {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .mode-option,
-    .theory-link,
-    .close-button,
-    .nav-row {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(61, 220, 132, 0.14);
-      color: #dffff0;
-      border: 1px solid rgba(61, 220, 132, 0.24);
-      text-align: left;
-      font-weight: 700;
-    }
-
-    .close-button {
-      width: 42px;
-      height: 42px;
-      padding: 0;
-      text-align: center;
-    }
-
-    .mode-option.active,
-    .theory-link.active,
-    .theory-link:hover {
-      background: rgba(61, 220, 132, 0.16);
-      border-color: rgba(61, 220, 132, 0.3);
-      color: #c3ffd8;
-    }
-
-    .lesson-row,
-    .option-card,
-    .mini-note {
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .formula-list,
-    .lesson-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .formula-card {
-      background: rgba(140, 68, 255, 0.12);
-    }
-
-    .formula-sign {
-      font-size: 1.14rem;
-      font-weight: 800;
-      color: #d7cbff;
-      margin-bottom: 8px;
-    }
-
-    .task-options {
-      display: grid;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .option-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background var(--transition), border-color var(--transition), transform var(--transition);
-    }
-
-    .option-card:hover {
-      background: rgba(61, 220, 132, 0.08);
-      border-color: rgba(61, 220, 132, 0.26);
-      transform: translateX(2px);
-    }
-
-    .option-card input {
-      accent-color: #37d77f;
-      width: 18px;
-      height: 18px;
-      margin: 0;
-    }
-
-    .input,
-    .textarea,
-    .select {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      outline: none;
-    }
-
-    .textarea {
-      min-height: 132px;
-      resize: vertical;
-    }
-
-    .label {
-      display: grid;
-      gap: 8px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .feedback-box {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid transparent;
-    }
-
-    .feedback-box.success {
-      background: rgba(61, 220, 132, 0.12);
-      border-color: rgba(61, 220, 132, 0.28);
-    }
-
-    .feedback-box.error {
-      background: rgba(255, 111, 125, 0.12);
-      border-color: rgba(255, 111, 125, 0.28);
-    }
-
-    .feedback-box.warning {
-      background: rgba(255, 184, 77, 0.12);
-      border-color: rgba(255, 184, 77, 0.28);
-    }
-
-    .breadcrumbs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 18px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .breadcrumbs button {
-      background: none;
-      color: inherit;
-      padding: 0;
-    }
-
-    .modal-layer {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.56);
-      z-index: 80;
-    }
-
-    .modal {
-      width: min(760px, 100%);
-      max-height: calc(100vh - 40px);
-      overflow-y: auto;
-      background: rgba(13, 18, 25, 0.98);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .form-grid .full {
-      grid-column: 1 / -1;
-    }
-
-    .toast-stack {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      display: grid;
-      gap: 10px;
-      z-index: 90;
-    }
-
-    .toast {
-      min-width: 240px;
-      max-width: 360px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(10, 15, 20, 0.96);
-      border: 1px solid rgba(61, 220, 132, 0.22);
-      box-shadow: var(--shadow);
-    }
-
-    .hearts {
-      display: inline-flex;
-      gap: 6px;
-      font-size: 1.12rem;
-    }
-
-    .heart.empty {
-      opacity: 0.28;
-    }
-
-    .empty-state {
-      padding: 28px;
-      text-align: center;
-    }
-
-    @keyframes gradientFlow {
-      0%, 100% { background-position: 0% 30%; }
-      50% { background-position: 100% 70%; }
-    }
-
-    @keyframes floatOrb {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(30px, 40px) scale(1.08); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 1080px) {
-      .hero,
-      .detail-grid,
-      .lesson-layout,
-      .theory-grid,
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .workspace { padding: 14px; }
-      .topbar { grid-template-columns: 1fr; }
-      .topnav,
-      .topbar-right,
-      .header-stats { justify-content: flex-start; }
-      .form-grid { grid-template-columns: 1fr; }
-      .sidebar,
-      .modal,
-      .panel,
-      .lesson-copy,
-      .task-panel,
-      .theory-article,
-      .formula-card,
-      .example-card { padding: 18px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Стереометрия Локально</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside id="sidebar" class="sidebar" aria-hidden="true"></aside>
-    <div id="sidebarScrim" class="sidebar-scrim"></div>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="#home">
+        <span class="brand-mark">3D</span>
+        <span class="brand-copy">
+          <strong>Стереометрия</strong>
+          <span>локальный тренажёр без библиотек</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Основная навигация">
+        <a class="nav-link" href="#home" data-nav-link="home">Главная</a>
+        <a class="nav-link" href="#course" data-nav-link="course">Курс</a>
+        <a class="nav-link" href="#theory" data-nav-link="theory">Теория</a>
+        <a class="nav-link" href="#scene" data-nav-link="scene">Сцена</a>
+      </nav>
+    </header>
 
-    <div class="workspace">
-      <header class="topbar">
-        <div class="brand-wrap">
-          <div class="brand-mark">∑</div>
-          <div>
-            <p class="eyebrow">math for school</p>
-            <h1 class="brand-title">Матеон</h1>
+    <main class="site-main">
+      <section class="app-section is-active" id="home" data-section="home" tabindex="-1">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">MVP • file:// • без backend</p>
+            <h1>Учебный сайт-тренажёр по стереометрии</h1>
+            <p class="hero-lead">
+              Здесь можно читать темы, смотреть формулы, переключать тела, крутить сцену мышью
+              и сразу видеть, как меняются площадь поверхности и объём.
+            </p>
+            <div class="hero-actions">
+              <a class="hero-button" href="#course">Курс</a>
+              <a class="hero-button" href="#theory">Теория</a>
+              <a class="hero-button" href="#scene">Сцена</a>
+            </div>
           </div>
+
+          <aside class="hero-panel">
+            <h2>Что уже в MVP</h2>
+            <ul class="feature-list">
+              <li>4 раздела с hash-навигацией без перезагрузки</li>
+              <li>Canvas viewer с собственной 3D-математикой</li>
+              <li>16 тел, подсветка вершин, рёбер и граней</li>
+              <li>Каталог 2D-графиков с отдельной плоскостью просмотра</li>
+              <li>Расширенный набор тем с блоками: теория, формулы, визуализация, примеры</li>
+            </ul>
+          </aside>
         </div>
 
-        <nav class="topnav">
-          <button class="nav-chip" data-nav="home">Курсы</button>
-          <button class="nav-chip" data-nav="theory">Теория</button>
-        </nav>
-
-        <div class="topbar-right">
-          <div id="headerStats" class="header-stats"></div>
-          <button id="burgerButton" class="icon-button" aria-label="Открыть меню">☰</button>
+        <div class="home-grid">
+          <article class="info-card">
+            <h2>Как работать</h2>
+            <p>
+              Откройте тему в разделе курса или теории, затем нажмите «Показать в сцене».
+              Маршрут переведёт вас в viewer и применит подходящий пресет фигуры.
+            </p>
+          </article>
+          <article class="info-card">
+            <h2>Управление сценой</h2>
+            <p>
+              Зажмите левую кнопку мыши или касание и вращайте фигуру. Колесо мыши управляет
+              приближением, а переключатели справа включают слои подсветки.
+            </p>
+          </article>
+          <article class="info-card">
+            <h2>Формулы и метрики</h2>
+            <p>
+              Панель формул показывает общие выражения и числовую подстановку, а метрики
+              обновляются мгновенно при изменении параметров тела или масштаба 2D-графика.
+            </p>
+          </article>
         </div>
-      </header>
+      </section>
 
-      <main id="app" class="content"></main>
-    </div>
+      <section class="app-section" id="course" data-section="course" tabindex="-1" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Курс</p>
+          <h2>Пошаговый маршрут по ключевым темам</h2>
+          <p>Каждая карточка даёт краткую теорию, формулы, образ визуализации и маленький пример.</p>
+        </div>
+        <div class="cards-grid" id="course-cards"></div>
+      </section>
+
+      <section class="app-section" id="theory" data-section="theory" tabindex="-1" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Теория</p>
+          <h2>Справочник по стереометрии</h2>
+          <p>Здесь тот же набор тем подан как справочная база для повторения и быстрого доступа.</p>
+        </div>
+        <div class="cards-grid cards-grid--theory" id="theory-cards"></div>
+      </section>
+
+      <section class="app-section" id="scene" data-section="scene" tabindex="-1" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Сцена</p>
+          <h2>Интерактивный viewer</h2>
+          <p>Переключайтесь между телами и 2D-графиками, меняйте параметры и исследуйте форму на одной сцене.</p>
+        </div>
+
+        <div class="scene-layout">
+          <div class="scene-stage">
+            <div class="scene-toolbar">
+              <div>
+                <p class="toolbar-label" id="toolbar-label">Активный объект</p>
+                <h3 id="figure-title">Куб</h3>
+              </div>
+              <p class="scene-hint" id="preset-label">Базовый режим просмотра</p>
+            </div>
+
+            <div class="canvas-frame" id="canvas-frame">
+              <canvas id="scene-canvas" width="960" height="640" aria-label="3D сцена"></canvas>
+              <div class="canvas-overlay">
+                <span>ЛКМ / касание: вращение</span>
+                <span>Колесо: масштаб</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="scene-sidebar">
+            <section class="panel">
+              <div class="panel-header">
+                <h3 id="scene-control-title">Управление телом</h3>
+                <p id="figure-description">Регулярное тело с равными рёбрами и квадратными гранями.</p>
+              </div>
+              <label class="field">
+                <span>Режим просмотра</span>
+                <select id="view-mode-select">
+                  <option value="solid">3D тела</option>
+                  <option value="graph">2D графики</option>
+                </select>
+              </label>
+              <label class="field" id="solid-field">
+                <span>Фигура</span>
+                <select id="figure-select"></select>
+              </label>
+              <label class="field is-hidden" id="graph-field">
+                <span>График функции</span>
+                <select id="graph-select"></select>
+              </label>
+              <div class="field-group" id="highlight-group">
+                <span class="field-label">Подсветки</span>
+                <label class="toggle">
+                  <input type="checkbox" id="toggle-faces" checked>
+                  <span>Грани</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="toggle-edges" checked>
+                  <span>Рёбра</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="toggle-vertices">
+                  <span>Вершины</span>
+                </label>
+              </div>
+              <label class="field">
+                <span>Камера</span>
+                <select id="projection-select">
+                  <option value="perspective">3D перспектива</option>
+                  <option value="graph2d">2D плоскость</option>
+                </select>
+              </label>
+              <div class="field-group" id="section-group">
+                <span class="field-label">Сечение</span>
+                <label class="toggle">
+                  <input type="checkbox" id="toggle-section">
+                  <span>Показать секущую плоскость</span>
+                </label>
+              </div>
+              <div class="params-grid is-hidden" id="section-controls">
+                <div class="param-control">
+                  <label for="section-offset">
+                    <span>Смещение плоскости</span>
+                    <strong id="section-offset-value">0</strong>
+                  </label>
+                  <input id="section-offset" type="range" min="-8" max="8" step="0.1" value="0">
+                </div>
+                <div class="param-control">
+                  <label for="section-tilt-x">
+                    <span>Наклон к оси X</span>
+                    <strong id="section-tilt-x-value">0°</strong>
+                  </label>
+                  <input id="section-tilt-x" type="range" min="-70" max="70" step="1" value="0">
+                </div>
+                <div class="param-control">
+                  <label for="section-tilt-z">
+                    <span>Наклон к оси Z</span>
+                    <strong id="section-tilt-z-value">0°</strong>
+                  </label>
+                  <input id="section-tilt-z" type="range" min="-70" max="70" step="1" value="0">
+                </div>
+              </div>
+              <div class="params-grid" id="params-grid"></div>
+            </section>
+
+            <section class="panel metrics-panel">
+              <div class="panel-header">
+                <h3>Метрики</h3>
+                <p>Значения вычисляются из текущих параметров активной фигуры.</p>
+              </div>
+              <dl class="metrics-list">
+                <div>
+                  <dt id="metric-primary-label">Площадь поверхности S</dt>
+                  <dd id="metric-surface">0</dd>
+                </div>
+                <div>
+                  <dt id="metric-secondary-label">Объём V</dt>
+                  <dd id="metric-volume">0</dd>
+                </div>
+                <div class="is-hidden" id="metric-section-wrap">
+                  <dt id="metric-section-label">Площадь сечения</dt>
+                  <dd id="metric-section">0</dd>
+                </div>
+              </dl>
+              <p class="metric-note" id="metric-note"></p>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h3>Формулы</h3>
+                <p>Общие выражения и подстановка текущих чисел для выбранного тела.</p>
+              </div>
+              <label class="toggle toggle--wide">
+                <input type="checkbox" id="toggle-formula-values" checked>
+                <span>Показать числовую подстановку</span>
+              </label>
+              <div class="formula-panel" id="formula-panel"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <div id="modalRoot"></div>
-  <div id="toastRoot" class="toast-stack"></div>
-
-  <script>
-    // Ключ для полного состояния приложения в localStorage.
-    const STORAGE_KEY = "mateon_local_storage_v1";
-    const XP_PER_LESSON = 20;
-    const BRAND_NAME = "Матеон";
-    const FIGURE_THEORY_IDS = [
-      "figure_sphere",
-      "figure_cube",
-      "figure_pyramid",
-      "figure_ball",
-      "figure_triangle",
-      "figure_quadrilateral",
-      "figure_rectangle",
-      "figure_cylinder"
-    ];
-
-    const ACHIEVEMENTS = [
-      {
-        id: "young_pythagor",
-        title: "Юный Пифагор",
-        description: "Пройди 5 уроков и почувствуй уверенность в решениях.",
-        icon: "△"
-      },
-      {
-        id: "equation_master",
-        title: "Мастер уравнений",
-        description: "Реши 10 задач по алгебре из курса.",
-        icon: "x"
-      },
-      {
-        id: "geometry_genius",
-        title: "Геометрический гений",
-        description: "Открой все фигуры в разделе теории.",
-        icon: "◯"
-      },
-      {
-        id: "unshakable",
-        title: "Непоколебимый",
-        description: "Закончи урок, когда у тебя осталась ровно одна жизнь.",
-        icon: "♥"
-      }
-    ];
-
-    const THEORY_LIBRARY = [
-      {
-        id: "algebra_intro",
-        category: "Алгебра",
-        title: "Алгебра (базовая)",
-        definition: "Алгебра изучает числа, выражения, уравнения и зависимости между величинами. Она помогает переводить задачи на язык формул и шаг за шагом находить ответ. В школьном курсе 5–9 класса алгебра учит работать с переменными, степенями, функциями и прогрессиями.",
-        formulas: [
-          {
-            formula: "ax + b = 0",
-            explanation: "Линейное уравнение содержит переменную x в первой степени. Чтобы найти x, нужно перенести известные числа в одну сторону и разделить на коэффициент a."
-          },
-          {
-            formula: "(a + b)^2 = a^2 + 2ab + b^2",
-            explanation: "Квадрат суммы помогает быстро раскрывать скобки. Вместо умножения двучлена на двучлен удобно сразу записать три слагаемых."
-          },
-          {
-            formula: "y = kx + b",
-            explanation: "Так записывают линейную функцию. Число k показывает, как быстро меняется y, а b отвечает за точку пересечения с осью y."
-          }
-        ],
-        examples: [
-          "Пример уравнения: 3x + 9 = 0 → 3x = -9 → x = -3.",
-          "Пример раскрытия скобок: (x + 4)^2 = x^2 + 8x + 16.",
-          "Пример функции: если y = 2x + 1 и x = 3, то y = 7."
-        ]
-      },
-      {
-        id: "geometry_intro",
-        category: "Геометрия",
-        title: "Геометрия",
-        definition: "Геометрия изучает формы, размеры и расположение фигур. Она отвечает на вопросы о длинах, углах, площадях и объёмах. В школьной геометрии важно не только помнить формулы, но и понимать, откуда они берутся и когда их можно применять.",
-        formulas: [
-          {
-            formula: "P = a + b + c",
-            explanation: "Периметр треугольника равен сумме длин всех его сторон."
-          },
-          {
-            formula: "S = a * b",
-            explanation: "Площадь прямоугольника равна произведению длины и ширины."
-          },
-          {
-            formula: "V = Sосн * h",
-            explanation: "Объём многих тел можно найти как площадь основания, умноженную на высоту."
-          }
-        ],
-        examples: [
-          "Если у прямоугольника стороны 5 см и 3 см, то S = 15 см².",
-          "Если у треугольника стороны 4 см, 5 см и 6 см, то P = 15 см."
-        ]
-      },
-      {
-        id: "stereometry_intro",
-        category: "Стереометрия",
-        title: "Стереометрия",
-        definition: "Стереометрия изучает объёмные фигуры в пространстве. Здесь появляются длина, площадь поверхности и объём. Важно различать поверхность тела, например сферу, и само тело, например шар.",
-        formulas: [
-          {
-            formula: "Vкуба = a^3",
-            explanation: "У куба все рёбра равны, поэтому объём равен произведению трёх одинаковых измерений."
-          },
-          {
-            formula: "Vцилиндра = πr^2h",
-            explanation: "Сначала находим площадь круглого основания πr^2, а затем умножаем её на высоту h."
-          },
-          {
-            formula: "Vпирамиды = (1/3)Sоснh",
-            explanation: "Пирамида занимает треть объёма призмы с тем же основанием и высотой."
-          }
-        ],
-        examples: [
-          "Если ребро куба 4 см, то объём равен 64 см³.",
-          "Если цилиндр имеет r = 2 см и h = 5 см, то V = 20π см³."
-        ]
-      },
-      {
-        id: "planimetry_intro",
-        category: "Планиметрия",
-        title: "Планиметрия",
-        definition: "Планиметрия изучает плоские фигуры, которые лежат на одной плоскости. Она помогает находить периметр, площадь и свойства углов. Эти знания особенно важны при решении задач на треугольники, четырёхугольники и окружности.",
-        formulas: [
-          {
-            formula: "Sтреугольника = (1/2)ah",
-            explanation: "Площадь треугольника равна половине произведения основания и высоты."
-          },
-          {
-            formula: "Pпрямоугольника = 2(a + b)",
-            explanation: "У прямоугольника две пары равных сторон, поэтому сумма длины и ширины удваивается."
-          },
-          {
-            formula: "Sквадрата = a^2",
-            explanation: "Площадь квадрата равна произведению стороны самой на себя."
-          }
-        ],
-        examples: [
-          "Если основание треугольника 8 см и высота 5 см, то площадь равна 20 см².",
-          "Если у прямоугольника стороны 7 см и 2 см, то периметр равен 18 см."
-        ]
-      },
-      {
-        id: "figure_sphere",
-        category: "Стереометрия",
-        title: "Сфера",
-        definition: "Сфера — это поверхность всех точек пространства, которые находятся на одинаковом расстоянии от центра. Она не имеет объёма, потому что является только оболочкой. Сфера часто появляется в задачах вместе с шаром.",
-        formulas: [{ formula: "S = 4πr^2", explanation: "Площадь поверхности сферы зависит только от радиуса." }],
-        examples: ["Если радиус сферы 3 см, то S = 36π см²."]
-      },
-      {
-        id: "figure_ball",
-        category: "Стереометрия",
-        title: "Шар",
-        definition: "Шар — это тело, ограниченное сферой. В отличие от сферы, у шара есть объём. Все точки шара находятся не дальше радиуса от центра.",
-        formulas: [{ formula: "V = (4/3)πr^3", explanation: "Объём шара зависит от куба радиуса." }],
-        examples: ["Если радиус шара 2 см, то V = 32π/3 см³."]
-      },
-      {
-        id: "figure_cube",
-        category: "Стереометрия",
-        title: "Куб",
-        definition: "Куб — это многогранник, у которого все грани являются квадратами, а все рёбра равны. У него 6 граней, 12 рёбер и 8 вершин.",
-        formulas: [
-          { formula: "Sпов = 6a^2", explanation: "У куба шесть одинаковых квадратных граней." },
-          { formula: "V = a^3", explanation: "Объём куба равен произведению длины, ширины и высоты." }
-        ],
-        examples: ["Если ребро куба 5 см, то Sпов = 150 см², а V = 125 см³."]
-      },
-      {
-        id: "figure_pyramid",
-        category: "Стереометрия",
-        title: "Пирамида",
-        definition: "Пирамида — это многогранник, у которого есть основание-многоугольник и боковые грани, сходящиеся в одной вершине. Для объёма важны площадь основания и высота.",
-        formulas: [{ formula: "V = (1/3)Sоснh", explanation: "Объём пирамиды составляет треть объёма призмы с тем же основанием и высотой." }],
-        examples: ["Если площадь основания 18 см², а высота 6 см, то объём равен 36 см³."]
-      },
-      {
-        id: "figure_cylinder",
-        category: "Стереометрия",
-        title: "Цилиндр",
-        definition: "Цилиндр — тело с двумя равными круглыми основаниями и боковой поверхностью. Для вычислений нужны радиус основания и высота.",
-        formulas: [
-          { formula: "V = πr^2h", explanation: "Объём цилиндра равен площади основания, умноженной на высоту." },
-          { formula: "Sбок = 2πrh", explanation: "Боковая поверхность цилиндра разворачивается в прямоугольник." }
-        ],
-        examples: ["Если r = 3 см и h = 4 см, то V = 36π см³."]
-      },
-      {
-        id: "figure_triangle",
-        category: "Планиметрия",
-        title: "Треугольник",
-        definition: "Треугольник — фигура с тремя сторонами и тремя углами. Сумма его внутренних углов всегда равна 180°.",
-        formulas: [
-          { formula: "P = a + b + c", explanation: "Периметр — это сумма длин всех сторон треугольника." },
-          { formula: "S = (1/2)ah", explanation: "Площадь равна половине произведения основания и высоты." }
-        ],
-        examples: ["Если стороны 3 см, 4 см и 5 см, то P = 12 см, а при основании 4 см и высоте 3 см площадь равна 6 см²."]
-      },
-      {
-        id: "figure_quadrilateral",
-        category: "Планиметрия",
-        title: "Четырёхугольник",
-        definition: "Четырёхугольник — это многоугольник с четырьмя сторонами. Сумма внутренних углов любого четырёхугольника равна 360°.",
-        formulas: [{ formula: "P = a + b + c + d", explanation: "Периметр четырёхугольника равен сумме всех четырёх сторон." }],
-        examples: ["Если стороны равны 4 см, 5 см, 4 см и 5 см, то периметр равен 18 см."]
-      },
-      {
-        id: "figure_rectangle",
-        category: "Планиметрия",
-        title: "Прямоугольник",
-        definition: "Прямоугольник — четырёхугольник, у которого все углы прямые. Противоположные стороны равны и параллельны.",
-        formulas: [
-          { formula: "S = a * b", explanation: "Чтобы найти площадь прямоугольника, умножают длину на ширину." },
-          { formula: "P = 2(a + b)", explanation: "Периметр — сумма всех сторон, а у прямоугольника две длины и две ширины." }
-        ],
-        examples: ["Если длина 9 см, а ширина 2 см, то S = 18 см² и P = 22 см."]
-      }
-    ];
-
-    // Стартовый курс создаётся автоматически, если localStorage пуст.
-    function getDefaultCourses() {
-      return [
-        {
-          id: "algebra_basic",
-          title: "Алгебра",
-          description: "Базовый курс по школьной алгебре 5–9 класса: уравнения, степени, формулы сокращённого умножения, функции и прогрессии.",
-          modules: [
-            {
-              id: "linear_equations",
-              title: "Линейные уравнения",
-              lessons: [
-                {
-                  id: "lesson_linear_1",
-                  title: "Что такое линейное уравнение",
-                  theory: "Линейное уравнение — это уравнение, в котором переменная входит только в первой степени. Обычно его записывают в виде ax + b = 0, где a не равно нулю. Чтобы решить такое уравнение, нужно перенести известное число в другую часть и разделить на коэффициент при x. Главное правило — выполнять одинаковые действия с обеими частями уравнения. Так мы сохраняем верное равенство и находим неизвестное.",
-                  formulas: ["ax + b = 0", "x = -b / a"],
-                  example: "2x + 4 = 0 → 2x = -4 → x = -2",
-                  task: {
-                    type: "single",
-                    question: "Решите уравнение: 3x + 6 = 0",
-                    options: ["x = -2", "x = 2", "x = -3"],
-                    correctAnswer: "x = -2"
-                  }
-                },
-                {
-                  id: "lesson_linear_2",
-                  title: "Уравнения со скобками",
-                  theory: "Если в уравнении есть скобки, сначала их нужно раскрыть. Для этого каждый член внутри скобок умножается на число перед скобкой. После раскрытия похожие слагаемые удобно собрать вместе, а затем решить получившееся линейное уравнение. Такой порядок делает запись аккуратной и помогает избежать ошибок. Проверка ответом подстановкой особенно полезна на первых шагах обучения.",
-                  formulas: ["k(a + b) = ka + kb", "2(x + 3) = 2x + 6"],
-                  example: "2(x + 3) = 10 → 2x + 6 = 10 → 2x = 4 → x = 2",
-                  task: {
-                    type: "text",
-                    question: "Решите уравнение: 4(x - 1) = 12",
-                    correctAnswer: "4"
-                  }
-                },
-                {
-                  id: "lesson_linear_3",
-                  title: "Текстовые задачи через уравнение",
-                  theory: "Многие задачи удобно переводить в уравнение. Сначала выбирают неизвестную величину и обозначают её буквой x. Затем по условию составляют равенство и решают его так же, как обычное линейное уравнение. Такой подход помогает видеть структуру задачи, а не гадать ответ. После решения полезно проверить, подходит ли найденное число по смыслу задачи.",
-                  formulas: ["неизвестное = x", "составляем равенство по условию"],
-                  example: "Задумали число. Если прибавить 7, получится 15. Составим x + 7 = 15 → x = 8",
-                  task: {
-                    type: "single",
-                    question: "Задумали число. Если его удвоить и прибавить 4, получится 18. Какое это число?",
-                    options: ["7", "8", "9"],
-                    correctAnswer: "7"
-                  }
-                }
-              ]
-            },
-            {
-              id: "powers_roots",
-              title: "Степени и корни",
-              lessons: [
-                {
-                  id: "lesson_power_1",
-                  title: "Степень числа",
-                  theory: "Степень показывает, сколько раз число нужно умножить само на себя. Например, 2^3 означает 2 * 2 * 2. В школьной алгебре важно понимать разницу между основанием степени и показателем степени. Квадрат и куб встречаются особенно часто, потому что помогают быстро считать площади и объёмы. Чем увереннее ты работаешь со степенями, тем легче будет изучать формулы и функции.",
-                  formulas: ["a^2 = a * a", "a^3 = a * a * a"],
-                  example: "3^2 = 3 * 3 = 9, а 2^3 = 2 * 2 * 2 = 8",
-                  task: {
-                    type: "multiple",
-                    question: "Выберите верные равенства.",
-                    options: ["2^3 = 8", "5^2 = 10", "4^2 = 16", "3^3 = 6"],
-                    correctAnswer: ["2^3 = 8", "4^2 = 16"]
-                  }
-                },
-                {
-                  id: "lesson_power_2",
-                  title: "Квадратный корень",
-                  theory: "Квадратный корень из числа — это такое число, квадрат которого даёт исходное значение. Например, √49 = 7, потому что 7^2 = 49. Корни помогают переходить от площади к стороне квадрата и решать уравнения вида x^2 = a. Важно помнить, что арифметический квадратный корень не бывает отрицательным. Поэтому √a всегда обозначает неотрицательное число.",
-                  formulas: ["√a = b, если b^2 = a", "√49 = 7"],
-                  example: "x^2 = 36 → x = 6 или x = -6, но √36 = 6",
-                  task: {
-                    type: "text",
-                    question: "Найдите арифметический квадратный корень: √81",
-                    correctAnswer: "9"
-                  }
-                },
-                {
-                  id: "lesson_power_3",
-                  title: "Свойства степеней",
-                  theory: "Свойства степеней помогают сокращать длинные записи. При умножении степеней с одинаковым основанием показатели складываются. При делении — вычитаются, если основание не равно нулю. Эти правила экономят время и помогают упрощать алгебраические выражения. Главное — внимательно следить, чтобы одинаковым было именно основание.",
-                  formulas: ["a^m * a^n = a^(m+n)", "a^m / a^n = a^(m-n)"],
-                  example: "2^3 * 2^2 = 2^5 = 32, а 5^4 / 5^2 = 5^2 = 25",
-                  task: {
-                    type: "single",
-                    question: "Упростите: 3^2 * 3^3",
-                    options: ["3^5", "9^6", "3^6"],
-                    correctAnswer: "3^5"
-                  }
-                }
-              ]
-            },
-            {
-              id: "short_multiplication",
-              title: "Формулы сокращённого умножения",
-              lessons: [
-                {
-                  id: "lesson_formula_1",
-                  title: "Квадрат суммы",
-                  theory: "Формула квадрата суммы позволяет быстро раскрывать выражения вида (a + b)^2. Вместо умножения скобок по действиям можно сразу записать квадрат первого числа, удвоенное произведение и квадрат второго числа. Это полезно при вычислениях и преобразовании выражений. Важно не забывать средний член 2ab, потому что именно его чаще всего пропускают.",
-                  formulas: ["(a + b)^2 = a^2 + 2ab + b^2"],
-                  example: "(x + 3)^2 = x^2 + 2*x*3 + 9 = x^2 + 6x + 9",
-                  task: {
-                    type: "single",
-                    question: "Раскройте скобки: (x + 5)^2",
-                    options: ["x^2 + 10x + 25", "x^2 + 25", "x^2 + 5x + 25"],
-                    correctAnswer: "x^2 + 10x + 25"
-                  }
-                },
-                {
-                  id: "lesson_formula_2",
-                  title: "Квадрат разности",
-                  theory: "Формула квадрата разности похожа на квадрат суммы, но средний член будет отрицательным. Это происходит потому, что один из множителей имеет знак минус. Формула удобна в задачах, где нужно быстро раскрыть выражение или заметить обратный переход к компактной записи. Хорошая привычка — сначала проговаривать формулу словами.",
-                  formulas: ["(a - b)^2 = a^2 - 2ab + b^2"],
-                  example: "(y - 4)^2 = y^2 - 2*y*4 + 16 = y^2 - 8y + 16",
-                  task: {
-                    type: "text",
-                    question: "Найдите коэффициент при x после раскрытия скобок: (x - 6)^2",
-                    correctAnswer: "-12"
-                  }
-                },
-                {
-                  id: "lesson_formula_3",
-                  title: "Разность квадратов",
-                  theory: "Разность квадратов показывает, что выражение a^2 - b^2 можно разложить на произведение (a - b)(a + b). Формула помогает сокращать дроби, решать уравнения и упрощать выражения. Здесь важно видеть именно разность, а не сумму квадратов. Если научиться узнавать эту форму, решение многих задач станет короче.",
-                  formulas: ["a^2 - b^2 = (a - b)(a + b)"],
-                  example: "x^2 - 16 = x^2 - 4^2 = (x - 4)(x + 4)",
-                  task: {
-                    type: "multiple",
-                    question: "Выберите выражения, которые верно разложены на множители.",
-                    options: ["x^2 - 9 = (x - 3)(x + 3)", "a^2 - 25 = (a - 5)^2", "y^2 - 1 = (y - 1)(y + 1)"],
-                    correctAnswer: ["x^2 - 9 = (x - 3)(x + 3)", "y^2 - 1 = (y - 1)(y + 1)"]
-                  }
-                }
-              ]
-            },
-            {
-              id: "functions",
-              title: "Функции",
-              lessons: [
-                {
-                  id: "lesson_function_1",
-                  title: "Что такое функция",
-                  theory: "Функция показывает, как одно число зависит от другого. Обычно x называют аргументом, а y — значением функции. Если каждому x соответствует только одно y, то перед нами функция. Такой способ записи помогает описывать движение, рост и другие процессы. В школьном курсе первым делом изучают линейные функции.",
-                  formulas: ["y = f(x)", "y = kx + b"],
-                  example: "Если y = 2x + 1, то при x = 4 получаем y = 9",
-                  task: {
-                    type: "single",
-                    question: "Найдите значение функции y = 2x + 3 при x = 4.",
-                    options: ["11", "8", "5"],
-                    correctAnswer: "11"
-                  }
-                },
-                {
-                  id: "lesson_function_2",
-                  title: "Линейная функция",
-                  theory: "Линейная функция имеет вид y = kx + b. Коэффициент k показывает наклон прямой: если он положительный, график поднимается вправо, если отрицательный — опускается. Число b показывает, где прямая пересекает ось y. Для начала достаточно подставить несколько значений x и найти соответствующие y.",
-                  formulas: ["y = kx + b", "при x = 0, y = b"],
-                  example: "Для y = -x + 2: при x = 0, y = 2; при x = 2, y = 0",
-                  task: {
-                    type: "text",
-                    question: "Найдите y, если y = -2x + 5 и x = 2.",
-                    correctAnswer: "1"
-                  }
-                },
-                {
-                  id: "lesson_function_3",
-                  title: "Прямая пропорциональность",
-                  theory: "Прямая пропорциональность — это функция вида y = kx, где b = 0. Её график проходит через начало координат. Если увеличить x в несколько раз, то y изменится во столько же раз. Такие зависимости часто встречаются в задачах на стоимость, путь и массу.",
-                  formulas: ["y = kx", "k = y / x"],
-                  example: "Если y = 4x, то при x = 3 получаем y = 12",
-                  task: {
-                    type: "multiple",
-                    question: "Какие функции являются прямой пропорциональностью?",
-                    options: ["y = 3x", "y = x + 7", "y = -2x", "y = 5"],
-                    correctAnswer: ["y = 3x", "y = -2x"]
-                  }
-                }
-              ]
-            },
-            {
-              id: "progressions",
-              title: "Прогрессии",
-              lessons: [
-                {
-                  id: "lesson_progression_1",
-                  title: "Арифметическая прогрессия",
-                  theory: "Арифметическая прогрессия — это последовательность, в которой каждый следующий член отличается от предыдущего на одно и то же число. Это число называют разностью прогрессии и обозначают буквой d. Формула n-го члена помогает быстро находить далёкие элементы без выписывания всей последовательности. Такой навык полезен в задачах на закономерности.",
-                  formulas: ["a_n = a_1 + (n - 1)d"],
-                  example: "Если a_1 = 4 и d = 3, то a_4 = 4 + 3*3 = 13",
-                  task: {
-                    type: "text",
-                    question: "Найдите 5-й член прогрессии, если a_1 = 2, d = 4.",
-                    correctAnswer: "18"
-                  }
-                },
-                {
-                  id: "lesson_progression_2",
-                  title: "Сумма арифметической прогрессии",
-                  theory: "Сумму первых n членов арифметической прогрессии можно найти по специальной формуле. Она удобна, когда нужно быстро сложить много чисел. Сначала можно найти полусумму первого и последнего члена, а потом умножить на количество членов. Это намного быстрее, чем складывать числа по одному.",
-                  formulas: ["S_n = (a_1 + a_n)n / 2"],
-                  example: "3, 5, 7, 9, 11 → S_5 = (3 + 11)*5/2 = 35",
-                  task: {
-                    type: "single",
-                    question: "Найдите сумму первых пяти членов прогрессии 2, 4, 6, 8, 10.",
-                    options: ["30", "25", "20"],
-                    correctAnswer: "30"
-                  }
-                },
-                {
-                  id: "lesson_progression_3",
-                  title: "Геометрическая прогрессия",
-                  theory: "Геометрическая прогрессия — это последовательность, где каждый следующий член получают умножением предыдущего на одно и то же число q. Это число называют знаменателем прогрессии. Формула n-го члена помогает быстро найти нужный элемент. Геометрическая прогрессия часто появляется в задачах на удвоение и проценты.",
-                  formulas: ["b_n = b_1 * q^(n-1)"],
-                  example: "Если b_1 = 3 и q = 2, то b_4 = 3 * 2^3 = 24",
-                  task: {
-                    type: "single",
-                    question: "Найдите 4-й член геометрической прогрессии: 2, 6, 18, ...",
-                    options: ["54", "36", "24"],
-                    correctAnswer: "54"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ];
-    }
-
-    const state = {
-      view: "home",
-      sidebarOpen: false,
-      selectedCourseId: null,
-      selectedModuleId: null,
-      selectedLessonId: null,
-      selectedTheoryId: THEORY_LIBRARY[0].id,
-      modal: null,
-      lessonFeedback: null
-    };
-
-    function createDefaultData() {
-      return {
-        mode: "student",
-        courses: getDefaultCourses(),
-        user: {
-          xp: 0,
-          completedLessons: [],
-          failedLessons: [],
-          algebraSolved: 0,
-          viewedTheory: [],
-          achievements: [],
-          lessonStates: {}
-        }
-      };
-    }
-
-    function saveData(data = appData) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
-    function ensureDataShape(data) {
-      const safeData = createDefaultData();
-      safeData.mode = data?.mode === "teacher" ? "teacher" : "student";
-      safeData.courses = Array.isArray(data?.courses) && data.courses.length ? data.courses : getDefaultCourses();
-      safeData.user = {
-        ...safeData.user,
-        ...(data?.user || {}),
-        completedLessons: Array.isArray(data?.user?.completedLessons) ? data.user.completedLessons : [],
-        failedLessons: Array.isArray(data?.user?.failedLessons) ? data.user.failedLessons : [],
-        viewedTheory: Array.isArray(data?.user?.viewedTheory) ? data.user.viewedTheory : [],
-        achievements: Array.isArray(data?.user?.achievements) ? data.user.achievements : [],
-        lessonStates: typeof data?.user?.lessonStates === "object" && data.user.lessonStates ? data.user.lessonStates : {}
-      };
-      saveData(safeData);
-      return safeData;
-    }
-
-    function loadData() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-          const freshData = createDefaultData();
-          saveData(freshData);
-          return freshData;
-        }
-        return ensureDataShape(JSON.parse(raw));
-      } catch (error) {
-        const fallback = createDefaultData();
-        saveData(fallback);
-        return fallback;
-      }
-    }
-
-    let appData = loadData();
-
-    function escapeHTML(value) {
-      return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function formatText(value) {
-      return escapeHTML(value).replace(/\n/g, "<br>");
-    }
-
-    function slugify(value) {
-      return String(value || "item")
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-zа-я0-9]+/gi, "_")
-        .replace(/^_+|_+$/g, "")
-        .slice(0, 36) || "item";
-    }
-
-    function uid(prefix, title) {
-      return prefix + "_" + slugify(title) + "_" + Date.now().toString(36);
-    }
-
-    function normalizeAnswer(answer) {
-      return String(answer || "").trim().replace(/\s+/g, " ").toLowerCase();
-    }
-
-    function getCourseById(courseId) {
-      return appData.courses.find((course) => course.id === courseId) || null;
-    }
-
-    function getModuleById(course, moduleId) {
-      return course?.modules.find((module) => module.id === moduleId) || null;
-    }
-
-    function getLessonById(module, lessonId) {
-      return module?.lessons.find((lesson) => lesson.id === lessonId) || null;
-    }
-
-    function getTotalLessons(course) {
-      return course.modules.reduce((sum, module) => sum + module.lessons.length, 0);
-    }
-
-    function getCourseCompletedCount(course) {
-      const completed = new Set(appData.user.completedLessons);
-      return course.modules.reduce((sum, module) => sum + module.lessons.filter((lesson) => completed.has(lesson.id)).length, 0);
-    }
-
-    function getLessonState(lessonId) {
-      if (!appData.user.lessonStates[lessonId]) {
-        appData.user.lessonStates[lessonId] = { livesLeft: 3, completed: false, failed: false };
-        saveData();
-      }
-      return appData.user.lessonStates[lessonId];
-    }
-
-    function currentLivesDisplay() {
-      if (!state.selectedLessonId) return 3;
-      return getLessonState(state.selectedLessonId).livesLeft;
-    }
-
-    function renderHearts(livesLeft) {
-      return `<span class="hearts">${[1, 2, 3].map((life) => `<span class="heart ${life <= livesLeft ? "" : "empty"}">♥</span>`).join("")}</span>`;
-    }
-
-    function showToast(message) {
-      const toastRoot = document.getElementById("toastRoot");
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.textContent = message;
-      toastRoot.appendChild(toast);
-      setTimeout(() => toast.remove(), 3200);
-    }
-
-    function unlockAchievement(achievementId) {
-      if (!appData.user.achievements.includes(achievementId)) {
-        appData.user.achievements.push(achievementId);
-        const achievement = ACHIEVEMENTS.find((item) => item.id === achievementId);
-        saveData();
-        if (achievement) showToast("Открыто достижение: " + achievement.title);
-      }
-    }
-
-    function updateAchievements() {
-      if (appData.user.completedLessons.length >= 5) unlockAchievement("young_pythagor");
-      if (appData.user.algebraSolved >= 10) unlockAchievement("equation_master");
-      if (FIGURE_THEORY_IDS.every((id) => appData.user.viewedTheory.includes(id))) unlockAchievement("geometry_genius");
-    }
-
-    function recordTheoryView(articleId) {
-      if (!appData.user.viewedTheory.includes(articleId)) {
-        appData.user.viewedTheory.push(articleId);
-        saveData();
-      }
-      updateAchievements();
-    }
-
-    function setView(nextView) {
-      state.view = nextView;
-      state.lessonFeedback = null;
-      if (nextView !== "lesson") state.selectedLessonId = null;
-      renderApp();
-    }
-
-    function openSidebar() {
-      state.sidebarOpen = true;
-      renderSidebar();
-    }
-
-    function closeSidebar() {
-      state.sidebarOpen = false;
-      renderSidebar();
-    }
-
-    function setMode(mode) {
-      appData.mode = mode === "teacher" ? "teacher" : "student";
-      saveData();
-      renderApp();
-      renderSidebar();
-      showToast(appData.mode === "teacher" ? "Режим учителя включён" : "Режим ученика включён");
-    }
-
-    function openCourse(courseId) {
-      state.selectedCourseId = courseId;
-      state.selectedModuleId = null;
-      state.selectedLessonId = null;
-      setView("course");
-    }
-
-    function openLesson(courseId, moduleId, lessonId) {
-      state.selectedCourseId = courseId;
-      state.selectedModuleId = moduleId;
-      state.selectedLessonId = lessonId;
-      state.view = "lesson";
-      state.lessonFeedback = null;
-      renderApp();
-    }
-
-    function openTheory(articleId) {
-      state.selectedTheoryId = articleId;
-      state.view = "theory";
-      recordTheoryView(articleId);
-      renderApp();
-    }
-
-    function getLessonStatus(lessonId) {
-      const lessonState = getLessonState(lessonId);
-      if (lessonState.completed) return { label: "Пройден", type: "success" };
-      if (lessonState.failed) return { label: "Провален", type: "danger" };
-      if (lessonState.livesLeft < 3) return { label: "В процессе", type: "warning" };
-      return { label: "Новый", type: "" };
-    }
-
-    function resetLessonProgress(lessonId) {
-      appData.user.lessonStates[lessonId] = { livesLeft: 3, completed: false, failed: false };
-      appData.user.failedLessons = appData.user.failedLessons.filter((id) => id !== lessonId);
-      saveData();
-      state.lessonFeedback = null;
-      renderApp();
-      renderSidebar();
-    }
-
-    function submitLessonAnswer(form) {
-      const course = getCourseById(state.selectedCourseId);
-      const module = getModuleById(course, state.selectedModuleId);
-      const lesson = getLessonById(module, state.selectedLessonId);
-      if (!lesson) return;
-
-      const lessonState = getLessonState(lesson.id);
-      if (lessonState.completed) {
-        state.lessonFeedback = { type: "success", text: "Урок уже завершён. Можно пройти его заново без дополнительного XP." };
-        renderApp();
-        return;
-      }
-      if (lessonState.failed) {
-        state.lessonFeedback = { type: "warning", text: "Попытка закончилась. Нажми «Начать заново», чтобы вернуть 3 жизни." };
-        renderApp();
-        return;
-      }
-
-      let isCorrect = false;
-
-      if (lesson.task.type === "single") {
-        const selected = form.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          state.lessonFeedback = { type: "warning", text: "Сначала выбери один вариант ответа." };
-          renderApp();
-          return;
-        }
-        isCorrect = selected.value === lesson.task.correctAnswer;
-      }
-
-      if (lesson.task.type === "multiple") {
-        const selected = Array.from(form.querySelectorAll('input[name="answer"]:checked')).map((input) => input.value).sort();
-        if (!selected.length) {
-          state.lessonFeedback = { type: "warning", text: "Отметь один или несколько верных вариантов." };
-          renderApp();
-          return;
-        }
-        const correct = [...lesson.task.correctAnswer].sort();
-        isCorrect = selected.length === correct.length && selected.every((value, index) => value === correct[index]);
-      }
-
-      if (lesson.task.type === "text") {
-        const value = form.querySelector('input[name="answer_text"]').value;
-        if (!value.trim()) {
-          state.lessonFeedback = { type: "warning", text: "Введи ответ в поле." };
-          renderApp();
-          return;
-        }
-        isCorrect = normalizeAnswer(value) === normalizeAnswer(lesson.task.correctAnswer);
-      }
-
-      if (isCorrect) {
-        const wasCompleted = lessonState.completed;
-        lessonState.completed = true;
-        lessonState.failed = false;
-        if (!appData.user.completedLessons.includes(lesson.id)) appData.user.completedLessons.push(lesson.id);
-        appData.user.failedLessons = appData.user.failedLessons.filter((id) => id !== lesson.id);
-        if (!wasCompleted) {
-          appData.user.xp += XP_PER_LESSON;
-          appData.user.algebraSolved += 1;
-        }
-        if (lessonState.livesLeft === 1) unlockAchievement("unshakable");
-        state.lessonFeedback = { type: "success", text: "Верно! Урок засчитан, а прогресс уже сохранён." };
-        saveData();
-        updateAchievements();
-        renderApp();
-        renderSidebar();
-        return;
-      }
-
-      lessonState.livesLeft = Math.max(0, lessonState.livesLeft - 1);
-      if (lessonState.livesLeft === 0) {
-        lessonState.failed = true;
-        if (!appData.user.failedLessons.includes(lesson.id)) appData.user.failedLessons.push(lesson.id);
-        state.lessonFeedback = { type: "error", text: "Жизни закончились. Урок провален, но его можно пройти заново." };
-      } else {
-        state.lessonFeedback = { type: "error", text: "Пока не совпало. Осталось жизней: " + lessonState.livesLeft };
-      }
-      saveData();
-      renderApp();
-      renderSidebar();
-    }
-
-    function cleanupProgress(lessonIds) {
-      appData.user.completedLessons = appData.user.completedLessons.filter((id) => !lessonIds.includes(id));
-      appData.user.failedLessons = appData.user.failedLessons.filter((id) => !lessonIds.includes(id));
-      lessonIds.forEach((lessonId) => delete appData.user.lessonStates[lessonId]);
-    }
-
-    function openModal(type, mode, context = {}) {
-      state.modal = { type, mode, ...context };
-      renderModal();
-    }
-
-    function closeModal() {
-      state.modal = null;
-      renderModal();
-    }
-
-    function deleteCourse(courseId) {
-      const course = getCourseById(courseId);
-      if (!course || !window.confirm("Удалить курс «" + course.title + "»?")) return;
-      cleanupProgress(course.modules.flatMap((module) => module.lessons.map((lesson) => lesson.id)));
-      appData.courses = appData.courses.filter((item) => item.id !== courseId);
-      saveData();
-      if (state.selectedCourseId === courseId) state.view = "home";
-      renderApp();
-      renderSidebar();
-    }
-
-    function deleteModule(courseId, moduleId) {
-      const course = getCourseById(courseId);
-      const module = getModuleById(course, moduleId);
-      if (!course || !module || !window.confirm("Удалить модуль «" + module.title + "»?")) return;
-      cleanupProgress(module.lessons.map((lesson) => lesson.id));
-      course.modules = course.modules.filter((item) => item.id !== moduleId);
-      saveData();
-      renderApp();
-      renderSidebar();
-    }
-
-    function deleteLesson(courseId, moduleId, lessonId) {
-      const course = getCourseById(courseId);
-      const module = getModuleById(course, moduleId);
-      const lesson = getLessonById(module, lessonId);
-      if (!course || !module || !lesson || !window.confirm("Удалить урок «" + lesson.title + "»?")) return;
-      cleanupProgress([lesson.id]);
-      module.lessons = module.lessons.filter((item) => item.id !== lessonId);
-      saveData();
-      if (state.selectedLessonId === lessonId) state.view = "course";
-      renderApp();
-      renderSidebar();
-    }
-
-    function validateLessonPayload(payload) {
-      if (!payload.title || !payload.theory || !payload.formulas.length || !payload.example || !payload.task.question || !payload.task.correctAnswer) {
-        throw new Error("Заполни все поля урока.");
-      }
-      if (payload.task.type === "text") {
-        delete payload.task.options;
-      } else {
-        if (!payload.task.options || payload.task.options.length < 3) throw new Error("Для single и multiple нужно минимум 3 варианта ответа.");
-        if (payload.task.type === "single" && !payload.task.options.includes(payload.task.correctAnswer)) {
-          throw new Error("Правильный ответ должен совпадать с одним из вариантов.");
-        }
-        if (payload.task.type === "multiple") {
-          if (!Array.isArray(payload.task.correctAnswer) || !payload.task.correctAnswer.length) throw new Error("Для multiple укажи хотя бы один правильный ответ.");
-          if (!payload.task.correctAnswer.every((answer) => payload.task.options.includes(answer))) throw new Error("Все правильные ответы должны присутствовать среди вариантов.");
-        }
-      }
-    }
-
-    function saveModalForm(form) {
-      const formData = new FormData(form);
-      if (state.modal.type === "course") {
-        const title = String(formData.get("title") || "").trim();
-        const description = String(formData.get("description") || "").trim();
-        if (!title || !description) return showToast("Заполни название и описание курса.");
-        if (state.modal.mode === "create") {
-          appData.courses.unshift({ id: uid("course", title), title, description, modules: [] });
-          showToast("Курс создан.");
-        } else {
-          const course = getCourseById(state.modal.courseId);
-          if (!course) return;
-          course.title = title;
-          course.description = description;
-          showToast("Курс обновлён.");
-        }
-      }
-      if (state.modal.type === "module") {
-        const title = String(formData.get("title") || "").trim();
-        if (!title) return showToast("Введите название модуля.");
-        const course = getCourseById(state.modal.courseId);
-        if (!course) return;
-        if (state.modal.mode === "create") {
-          course.modules.push({ id: uid("module", title), title, lessons: [] });
-          showToast("Модуль добавлен.");
-        } else {
-          const module = getModuleById(course, state.modal.moduleId);
-          if (!module) return;
-          module.title = title;
-          showToast("Модуль обновлён.");
-        }
-      }
-      if (state.modal.type === "lesson") {
-        const taskType = formData.get("taskType");
-        const optionsText = String(formData.get("options") || "").trim();
-        const correctRaw = String(formData.get("correctAnswer") || "").trim();
-        const payload = {
-          id: state.modal.lessonId || uid("lesson", formData.get("title")),
-          title: String(formData.get("title") || "").trim(),
-          theory: String(formData.get("theory") || "").trim(),
-          formulas: String(formData.get("formulas") || "").split("\n").map((item) => item.trim()).filter(Boolean),
-          example: String(formData.get("example") || "").trim(),
-          task: {
-            type: taskType,
-            question: String(formData.get("question") || "").trim(),
-            correctAnswer: taskType === "multiple" ? correctRaw.split("\n").map((item) => item.trim()).filter(Boolean) : correctRaw
-          }
-        };
-        if (taskType !== "text") payload.task.options = optionsText.split("\n").map((item) => item.trim()).filter(Boolean);
-        try {
-          validateLessonPayload(payload);
-        } catch (error) {
-          return showToast(error.message);
-        }
-        const course = getCourseById(state.modal.courseId);
-        const module = getModuleById(course, state.modal.moduleId);
-        if (!course || !module) return;
-        if (state.modal.mode === "create") {
-          module.lessons.push(payload);
-          showToast("Урок добавлен.");
-        } else {
-          const index = module.lessons.findIndex((lesson) => lesson.id === state.modal.lessonId);
-          if (index === -1) return;
-          module.lessons[index] = payload;
-          showToast("Урок обновлён.");
-        }
-      }
-      saveData();
-      closeModal();
-      renderApp();
-      renderSidebar();
-    }
-
-    function renderHeader() {
-      document.getElementById("headerStats").innerHTML = `
-        <span class="stat-pill">Режим: ${appData.mode === "teacher" ? "Учитель" : "Ученик"}</span>
-        <span class="stat-pill">XP: ${appData.user.xp}</span>
-        <span class="stat-pill">Жизни: ${currentLivesDisplay()}/3</span>
-      `;
-      document.querySelectorAll("[data-nav]").forEach((button) => {
-        button.classList.toggle("active", button.dataset.nav === (state.view === "theory" ? "theory" : "home"));
-      });
-    }
-
-    function renderSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const scrim = document.getElementById("sidebarScrim");
-      const unlocked = new Set(appData.user.achievements);
-      sidebar.innerHTML = `
-        <div class="sidebar-head">
-          <div>
-            <p class="eyebrow">быстрое меню</p>
-            <h2 class="brand-title">${BRAND_NAME}</h2>
-          </div>
-          <button class="close-button" data-close-sidebar>✕</button>
-        </div>
-        <div class="sidebar-stack">
-          <div class="profile-card">
-            <h3 class="card-title">Профиль</h3>
-            <p class="muted">Прогресс хранится прямо в браузере через localStorage.</p>
-            <div class="course-meta">
-              <span class="meta-tag">XP: ${appData.user.xp}</span>
-              <span class="meta-tag">Пройдено: ${appData.user.completedLessons.length}</span>
-              <span class="meta-tag">Жизни: ${currentLivesDisplay()}/3</span>
-            </div>
-          </div>
-          <div class="profile-card" id="settingsAnchor">
-            <h3 class="card-title">Настройки</h3>
-            <p class="muted">Переключайся между режимами без перезагрузки страницы.</p>
-            <div class="mode-switch">
-              <button class="mode-option ${appData.mode === "student" ? "active" : ""}" data-mode="student">Ученик</button>
-              <button class="mode-option ${appData.mode === "teacher" ? "active" : ""}" data-mode="teacher">Учитель</button>
-            </div>
-          </div>
-          <div class="sidebar-nav">
-            <button class="ghost-button nav-row" data-sidebar-view="home">🏠 Главная</button>
-            <button class="ghost-button nav-row" data-sidebar-view="theory">📘 Теория</button>
-            <button class="ghost-button nav-row" data-sidebar-scroll="settings">⚙ Настройки</button>
-            ${appData.mode === "teacher" ? '<button class="button nav-row" data-open-create-course>➕ Добавить курс</button>' : ""}
-          </div>
-          <div class="profile-card">
-            <h3 class="card-title">Достижения</h3>
-            <div class="achievement-grid">
-              ${ACHIEVEMENTS.map((achievement) => `
-                <div class="achievement-card ${unlocked.has(achievement.id) ? "" : "empty-state"}">
-                  <div class="soft-chip">${achievement.icon}</div>
-                  <h4>${achievement.title}</h4>
-                  <p class="muted">${achievement.description}</p>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        </div>
-      `;
-      sidebar.classList.toggle("open", state.sidebarOpen);
-      sidebar.setAttribute("aria-hidden", String(!state.sidebarOpen));
-      scrim.classList.toggle("active", state.sidebarOpen);
-    }
-
-    // Главная страница с карточками курсов и общей статистикой.
-    function renderHome() {
-      const courseCards = appData.courses.map((course) => {
-        const totalLessons = getTotalLessons(course);
-        const completedLessons = getCourseCompletedCount(course);
-        const percent = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
-        return `
-          <article class="course-card">
-            <div class="tag-row">
-              <span class="soft-chip">📚 ${course.modules.length} модулей</span>
-              <span class="soft-chip">🧩 ${totalLessons} уроков</span>
-            </div>
-            <h3>${escapeHTML(course.title)}</h3>
-            <p>${escapeHTML(course.description)}</p>
-            <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-            <div class="course-meta">
-              <span class="meta-tag">Прогресс: ${percent}%</span>
-              <span class="meta-tag">Пройдено: ${completedLessons}/${totalLessons}</span>
-            </div>
-            <div class="actions-row">
-              <button class="button" data-open-course="${course.id}">Открыть курс</button>
-              ${appData.mode === "teacher" ? `<button class="ghost-button" data-edit-course="${course.id}">Редактировать</button>` : ""}
-              ${appData.mode === "teacher" ? `<button class="ghost-button" data-delete-course="${course.id}">Удалить</button>` : ""}
-            </div>
-          </article>
-        `;
-      }).join("");
-
-      return `
-        <section class="hero">
-          <div class="panel hero-copy">
-            <div class="chip-row">
-              <span class="soft-chip">Тёмная тема</span>
-              <span class="soft-chip">Локальный прогресс</span>
-              <span class="soft-chip">5–9 класс</span>
-            </div>
-            <h2>Учись математике шаг за шагом, как в тренажёре, но в дружелюбной детской подаче.</h2>
-            <p>${BRAND_NAME} помогает читать теорию, проходить уроки, зарабатывать XP и не терять ритм. В режиме учителя можно мгновенно собирать собственные курсы, модули и уроки, а в режиме ученика — сразу начинать учиться.</p>
-            <div class="actions-row">
-              <button class="button" data-nav="home">Открыть курсы</button>
-              <button class="ghost-button" data-nav="theory">Перейти в теорию</button>
-            </div>
-          </div>
-          <div class="panel">
-            <p class="eyebrow">ритм</p>
-            <h3 class="card-title">Твой математический прогресс</h3>
-            <div class="course-meta">
-              <span class="meta-tag">XP: ${appData.user.xp}</span>
-              <span class="meta-tag">Достижений: ${appData.user.achievements.length}/${ACHIEVEMENTS.length}</span>
-            </div>
-            <p class="muted">Каждый новый верно решённый урок приносит опыт, а задания сохраняют состояние попытки.</p>
-            <p>${renderHearts(currentLivesDisplay())}</p>
-          </div>
-        </section>
-        <section class="stats-grid">
-          <div class="panel"><p class="eyebrow">опыт</p><h3 class="card-title">${appData.user.xp} XP</h3><p class="muted">Опыт растёт за каждый новый правильно завершённый урок.</p></div>
-          <div class="panel"><p class="eyebrow">уроки</p><h3 class="card-title">${appData.user.completedLessons.length}</h3><p class="muted">Столько уроков уже пройдено.</p></div>
-          <div class="panel"><p class="eyebrow">алгебра</p><h3 class="card-title">${appData.user.algebraSolved}</h3><p class="muted">Решённых задач по алгебре.</p></div>
-          <div class="panel"><p class="eyebrow">теория</p><h3 class="card-title">${appData.user.viewedTheory.length}</h3><p class="muted">Открытых карточек в справочнике.</p></div>
-        </section>
-        <section class="section-head">
-          <div>
-            <h2 class="section-title">Курсы</h2>
-            <p class="muted">Стартовый курс уже загружен, поэтому можно сразу переходить к урокам.</p>
-          </div>
-          ${appData.mode === "teacher" ? '<button class="button" data-open-create-course>➕ Добавить курс</button>' : ""}
-        </section>
-        <section class="course-grid">${courseCards}</section>
-      `;
-    }
-
-    function renderCourseView() {
-      const course = getCourseById(state.selectedCourseId);
-      if (!course) return renderHome();
-      const totalLessons = getTotalLessons(course);
-      const completedLessons = getCourseCompletedCount(course);
-      const percent = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
-      return `
-        <div class="breadcrumbs">
-          <button data-sidebar-view="home">Главная</button><span>›</span><span>${escapeHTML(course.title)}</span>
-        </div>
-        <section class="detail-grid">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">${escapeHTML(course.title)}</h2>
-                <p class="muted">${escapeHTML(course.description)}</p>
-              </div>
-              <div class="actions-row">
-                ${appData.mode === "teacher" ? `<button class="ghost-button" data-edit-course="${course.id}">Редактировать курс</button>` : ""}
-                ${appData.mode === "teacher" ? `<button class="button" data-open-module-modal="${course.id}">➕ Добавить модуль</button>` : ""}
-              </div>
-            </div>
-            <div class="course-meta">
-              <span class="meta-tag">Модулей: ${course.modules.length}</span>
-              <span class="meta-tag">Уроков: ${totalLessons}</span>
-              <span class="meta-tag">Прогресс: ${percent}%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-          </div>
-          <div class="panel">
-            <h3 class="card-title">Как учиться в курсе</h3>
-            <div class="formula-list">
-              <div class="mini-note">Читай теорию и пример решения до задания.</div>
-              <div class="mini-note">За верный ответ получай XP, за ошибку теряй одну жизнь.</div>
-              <div class="mini-note">В режиме учителя можно редактировать курс и проходить его как ученик.</div>
-            </div>
-          </div>
-        </section>
-        <section class="module-grid">
-          ${course.modules.map((module) => `
-            <article class="module-card">
-              <div class="lesson-row-head">
-                <h3>${escapeHTML(module.title)}</h3>
-                <div class="actions-row">
-                  ${appData.mode === "teacher" ? `<button class="ghost-button" data-edit-module="${course.id}|${module.id}">Изменить</button>` : ""}
-                  ${appData.mode === "teacher" ? `<button class="ghost-button" data-delete-module="${course.id}|${module.id}">Удалить</button>` : ""}
-                </div>
-              </div>
-              <p class="muted">Уроков в модуле: ${module.lessons.length}</p>
-              <ul class="lesson-list">
-                ${module.lessons.map((lesson) => {
-                  const lessonStatus = getLessonStatus(lesson.id);
-                  return `
-                    <li class="lesson-row">
-                      <div class="lesson-row-head">
-                        <h4>${escapeHTML(lesson.title)}</h4>
-                        <span class="status-tag ${lessonStatus.type}">${lessonStatus.label}</span>
-                      </div>
-                      <p class="muted">${escapeHTML(lesson.theory.slice(0, 140))}...</p>
-                      <div class="actions-row">
-                        <button class="button" data-open-lesson="${course.id}|${module.id}|${lesson.id}">Открыть урок</button>
-                        ${appData.mode === "teacher" ? `<button class="ghost-button" data-edit-lesson="${course.id}|${module.id}|${lesson.id}">Редактировать</button>` : ""}
-                        ${appData.mode === "teacher" ? `<button class="ghost-button" data-delete-lesson="${course.id}|${module.id}|${lesson.id}">Удалить</button>` : ""}
-                      </div>
-                    </li>
-                  `;
-                }).join("")}
-              </ul>
-              ${appData.mode === "teacher" ? `<div class="actions-row"><button class="button" data-open-lesson-modal="${course.id}|${module.id}">➕ Добавить урок</button></div>` : ""}
-            </article>
-          `).join("")}
-        </section>
-      `;
-    }
-
-    function renderTask(lesson) {
-      if (lesson.task.type === "single") {
-        return `<div class="task-options">${lesson.task.options.map((option, index) => `
-          <label class="option-card">
-            <input type="radio" name="answer" value="${escapeHTML(option)}" />
-            <span>${String.fromCharCode(65 + index)}) ${escapeHTML(option)}</span>
-          </label>
-        `).join("")}</div>`;
-      }
-      if (lesson.task.type === "multiple") {
-        return `<div class="task-options">${lesson.task.options.map((option) => `
-          <label class="option-card">
-            <input type="checkbox" name="answer" value="${escapeHTML(option)}" />
-            <span>${escapeHTML(option)}</span>
-          </label>
-        `).join("")}</div>`;
-      }
-      return `
-        <label class="label">
-          Ответ
-          <input class="input" type="text" name="answer_text" autocomplete="off" placeholder="Например: 4" />
-        </label>
-      `;
-    }
-
-    // Экран урока объединяет теорию, формулы, пример и одно практическое задание.
-    function renderLessonView() {
-      const course = getCourseById(state.selectedCourseId);
-      const module = getModuleById(course, state.selectedModuleId);
-      const lesson = getLessonById(module, state.selectedLessonId);
-      if (!course || !module || !lesson) return renderHome();
-      const lessonState = getLessonState(lesson.id);
-      return `
-        <div class="breadcrumbs">
-          <button data-sidebar-view="home">Главная</button><span>›</span>
-          <button data-open-course="${course.id}">${escapeHTML(course.title)}</button><span>›</span>
-          <span>${escapeHTML(lesson.title)}</span>
-        </div>
-        <section class="lesson-layout">
-          <div class="lesson-copy">
-            <div class="tag-row">
-              <span class="soft-chip">Модуль: ${escapeHTML(module.title)}</span>
-              <span class="soft-chip">XP за урок: ${XP_PER_LESSON}</span>
-            </div>
-            <h2 class="section-title">${escapeHTML(lesson.title)}</h2>
-            <p>${formatText(lesson.theory)}</p>
-            <div class="module-grid">
-              ${lesson.formulas.map((formula) => `<div class="formula-card"><div class="formula-sign">${escapeHTML(formula)}</div><p class="muted">Используй формулу как подсказку при решении.</p></div>`).join("")}
-            </div>
-            <div class="example-card" style="margin-top:18px;"><p>${formatText(lesson.example)}</p></div>
-          </div>
-          <div class="task-panel">
-            <div class="section-head">
-              <div>
-                <h3 class="card-title">Практика</h3>
-                <p class="muted">${escapeHTML(lesson.task.question)}</p>
-              </div>
-              <div>${renderHearts(lessonState.livesLeft)}</div>
-            </div>
-            <div class="course-meta"><span class="meta-tag">Статус: ${getLessonStatus(lesson.id).label}</span></div>
-            <form data-lesson-form>
-              ${renderTask(lesson)}
-              <div class="actions-row">
-                <button type="submit" class="button">Проверить ответ</button>
-                <button type="button" class="ghost-button" data-reset-lesson="${lesson.id}">Начать заново</button>
-              </div>
-            </form>
-            ${state.lessonFeedback ? `<div class="feedback-box ${state.lessonFeedback.type === "success" ? "success" : state.lessonFeedback.type === "warning" ? "warning" : "error"}">${escapeHTML(state.lessonFeedback.text)}</div>` : ""}
-            <div class="mini-note" style="margin-top:16px;">Неправильный ответ отнимает одну жизнь. Если жизни закончатся, урок считается проваленным, но его можно пройти снова.</div>
-          </div>
-        </section>
-      `;
-    }
-
-    function renderTheoryView() {
-      const article = THEORY_LIBRARY.find((item) => item.id === state.selectedTheoryId) || THEORY_LIBRARY[0];
-      const grouped = THEORY_LIBRARY.reduce((map, item) => {
-        if (!map[item.category]) map[item.category] = [];
-        map[item.category].push(item);
-        return map;
-      }, {});
-      return `
-        <section class="theory-grid">
-          <div class="panel theory-sidebar">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">Раздел «Теория»</h2>
-                <p class="muted">Открывай темы и фигуры как справочник. Просмотр фигур идёт в достижения.</p>
-              </div>
-            </div>
-            ${Object.entries(grouped).map(([category, items]) => `
-              <div class="theory-card">
-                <h3>${escapeHTML(category)}</h3>
-                <div class="theory-sidebar">
-                  ${items.map((item) => `<button class="theory-link ${item.id === article.id ? "active" : ""}" data-theory-id="${item.id}">${escapeHTML(item.title)}</button>`).join("")}
-                </div>
-              </div>
-            `).join("")}
-          </div>
-          <article class="theory-article">
-            <div class="tag-row">
-              <span class="soft-chip">${escapeHTML(article.category)}</span>
-              <span class="soft-chip">Открыто тем: ${appData.user.viewedTheory.length}</span>
-            </div>
-            <h2 class="section-title">${escapeHTML(article.title)}</h2>
-            <p>${formatText(article.definition)}</p>
-            <div class="module-grid">
-              ${article.formulas.map((item) => `<div class="formula-card"><div class="formula-sign">${escapeHTML(item.formula)}</div><p>${escapeHTML(item.explanation)}</p></div>`).join("")}
-            </div>
-            <div class="formula-list" style="margin-top:18px;">
-              ${article.examples.map((example) => `<div class="example-card">${escapeHTML(example)}</div>`).join("")}
-            </div>
-          </article>
-        </section>
-      `;
-    }
-
-    function renderModal() {
-      const root = document.getElementById("modalRoot");
-      if (!state.modal) {
-        root.innerHTML = "";
-        return;
-      }
-      let title = "";
-      let description = "";
-      let body = "";
-      if (state.modal.type === "course") {
-        const course = state.modal.mode === "edit" ? getCourseById(state.modal.courseId) : null;
-        title = state.modal.mode === "create" ? "Новый курс" : "Редактирование курса";
-        description = "Курс должен содержать название, описание и далее модули с уроками.";
-        body = `<form data-modal-form><div class="form-grid">
-          <label class="label full">Название курса<input class="input" name="title" value="${escapeHTML(course?.title || "")}" /></label>
-          <label class="label full">Описание<textarea class="textarea" name="description">${escapeHTML(course?.description || "")}</textarea></label>
-        </div><div class="actions-row"><button type="submit" class="button">Сохранить</button><button type="button" class="ghost-button" data-close-modal>Отмена</button></div></form>`;
-      }
-      if (state.modal.type === "module") {
-        const course = getCourseById(state.modal.courseId);
-        const module = state.modal.mode === "edit" ? getModuleById(course, state.modal.moduleId) : null;
-        title = state.modal.mode === "create" ? "Новый модуль" : "Редактирование модуля";
-        description = "Модуль объединяет уроки по одной теме.";
-        body = `<form data-modal-form><div class="form-grid">
-          <label class="label full">Название модуля<input class="input" name="title" value="${escapeHTML(module?.title || "")}" /></label>
-        </div><div class="actions-row"><button type="submit" class="button">Сохранить</button><button type="button" class="ghost-button" data-close-modal>Отмена</button></div></form>`;
-      }
-      if (state.modal.type === "lesson") {
-        const course = getCourseById(state.modal.courseId);
-        const module = getModuleById(course, state.modal.moduleId);
-        const lesson = state.modal.mode === "edit" ? getLessonById(module, state.modal.lessonId) : null;
-        title = state.modal.mode === "create" ? "Новый урок" : "Редактирование урока";
-        description = "Заполни теорию, формулы, пример и одно задание строго по структуре.";
-        body = `<form data-modal-form><div class="form-grid">
-          <label class="label full">Название урока<input class="input" name="title" value="${escapeHTML(lesson?.title || "")}" /></label>
-          <label class="label full">Теория<textarea class="textarea" name="theory">${escapeHTML(lesson?.theory || "")}</textarea></label>
-          <label class="label full">Формулы<textarea class="textarea" name="formulas">${escapeHTML(lesson?.formulas?.join("\n") || "")}</textarea></label>
-          <label class="label full">Пример решения<textarea class="textarea" name="example">${escapeHTML(lesson?.example || "")}</textarea></label>
-          <label class="label">Тип задания<select class="select" name="taskType">
-            <option value="single" ${lesson?.task?.type === "single" ? "selected" : ""}>single</option>
-            <option value="multiple" ${lesson?.task?.type === "multiple" ? "selected" : ""}>multiple</option>
-            <option value="text" ${lesson?.task?.type === "text" ? "selected" : ""}>text</option>
-          </select></label>
-          <label class="label full">Вопрос задания<textarea class="textarea" name="question">${escapeHTML(lesson?.task?.question || "")}</textarea></label>
-          <label class="label full">Варианты ответа<textarea class="textarea" name="options">${escapeHTML(Array.isArray(lesson?.task?.options) ? lesson.task.options.join("\n") : "")}</textarea></label>
-          <label class="label full">Правильный ответ<textarea class="textarea" name="correctAnswer">${escapeHTML(Array.isArray(lesson?.task?.correctAnswer) ? lesson.task.correctAnswer.join("\n") : lesson?.task?.correctAnswer || "")}</textarea></label>
-        </div><div class="actions-row"><button type="submit" class="button">Сохранить</button><button type="button" class="ghost-button" data-close-modal>Отмена</button></div></form>`;
-      }
-      root.innerHTML = `<div class="modal-layer"><div class="modal"><div class="modal-head"><div><h2>${escapeHTML(title)}</h2><p class="muted">${escapeHTML(description)}</p></div><button class="close-button" data-close-modal>✕</button></div>${body}</div></div>`;
-    }
-
-    function renderApp() {
-      renderHeader();
-      renderSidebar();
-      renderModal();
-      const app = document.getElementById("app");
-      if (state.view === "course") return (app.innerHTML = renderCourseView());
-      if (state.view === "lesson") return (app.innerHTML = renderLessonView());
-      if (state.view === "theory") return (app.innerHTML = renderTheoryView());
-      app.innerHTML = renderHome();
-    }
-
-    document.addEventListener("click", (event) => {
-      const target = event.target.closest("button, [data-theory-id]");
-      if (!target) return;
-      if (target.matches("[data-nav]")) return target.dataset.nav === "theory" ? openTheory(state.selectedTheoryId || THEORY_LIBRARY[0].id) : setView("home");
-      if (target.id === "burgerButton") return openSidebar();
-      if (target.hasAttribute("data-close-sidebar")) return closeSidebar();
-      if (target.hasAttribute("data-close-modal")) return closeModal();
-      if (target.hasAttribute("data-sidebar-view")) return closeSidebar(), target.dataset.sidebarView === "theory" ? openTheory(state.selectedTheoryId || THEORY_LIBRARY[0].id) : setView("home");
-      if (target.hasAttribute("data-sidebar-scroll")) return document.getElementById("settingsAnchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      if (target.hasAttribute("data-mode")) return setMode(target.dataset.mode);
-      if (target.hasAttribute("data-open-create-course")) return closeSidebar(), openModal("course", "create");
-      if (target.hasAttribute("data-edit-course")) return openModal("course", "edit", { courseId: target.dataset.editCourse });
-      if (target.hasAttribute("data-delete-course")) return deleteCourse(target.dataset.deleteCourse);
-      if (target.hasAttribute("data-open-course")) return openCourse(target.dataset.openCourse);
-      if (target.hasAttribute("data-open-module-modal")) return openModal("module", "create", { courseId: target.dataset.openModuleModal });
-      if (target.hasAttribute("data-edit-module")) { const [courseId, moduleId] = target.dataset.editModule.split("|"); return openModal("module", "edit", { courseId, moduleId }); }
-      if (target.hasAttribute("data-delete-module")) { const [courseId, moduleId] = target.dataset.deleteModule.split("|"); return deleteModule(courseId, moduleId); }
-      if (target.hasAttribute("data-open-lesson-modal")) { const [courseId, moduleId] = target.dataset.openLessonModal.split("|"); return openModal("lesson", "create", { courseId, moduleId }); }
-      if (target.hasAttribute("data-edit-lesson")) { const [courseId, moduleId, lessonId] = target.dataset.editLesson.split("|"); return openModal("lesson", "edit", { courseId, moduleId, lessonId }); }
-      if (target.hasAttribute("data-delete-lesson")) { const [courseId, moduleId, lessonId] = target.dataset.deleteLesson.split("|"); return deleteLesson(courseId, moduleId, lessonId); }
-      if (target.hasAttribute("data-open-lesson")) { const [courseId, moduleId, lessonId] = target.dataset.openLesson.split("|"); return openLesson(courseId, moduleId, lessonId); }
-      if (target.hasAttribute("data-reset-lesson")) return resetLessonProgress(target.dataset.resetLesson);
-      if (target.hasAttribute("data-theory-id")) return openTheory(target.dataset.theoryId);
-    });
-
-    document.getElementById("sidebarScrim").addEventListener("click", closeSidebar);
-
-    document.addEventListener("submit", (event) => {
-      if (event.target.matches("[data-modal-form]")) {
-        event.preventDefault();
-        saveModalForm(event.target);
-      }
-      if (event.target.matches("[data-lesson-form]")) {
-        event.preventDefault();
-        submitLessonAnswer(event.target);
-      }
-    });
-
-    renderApp();
-  </script>
+  <script src="./script.js"></script>
 </body>
 </html>
