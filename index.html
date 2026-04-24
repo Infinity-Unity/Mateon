@@ -3,240 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Стереометрия Локально</title>
-  <link rel="stylesheet" href="./style.css">
+  <meta name="description" content="Mateon — локальная платформа для изучения геометрии.">
+  <title>Mateon</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158/build/three.min.js" defer></script>
+  <script src="course-data.js" defer></script>
+  <script src="scene-renderers.js" defer></script>
+  <script src="app-core.js" defer></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="page-shell">
-    <header class="site-header">
-      <a class="brand" href="#home">
-        <span class="brand-mark">3D</span>
-        <span class="brand-copy">
-          <strong>Стереометрия</strong>
-          <span>локальный тренажёр без библиотек</span>
-        </span>
-      </a>
-      <nav class="site-nav" aria-label="Основная навигация">
-        <a class="nav-link" href="#home" data-nav-link="home">Главная</a>
-        <a class="nav-link" href="#course" data-nav-link="course">Курс</a>
-        <a class="nav-link" href="#theory" data-nav-link="theory">Теория</a>
-        <a class="nav-link" href="#scene" data-nav-link="scene">Сцена</a>
+  <div class="app">
+    <header class="topbar panel">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <h1>Mateon</h1>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Навигация">
+        <a class="nav-link" href="#home">Главная</a>
+        <a class="nav-link" href="#theory">Теория</a>
+        <a class="nav-link" href="#tests">Тесты</a>
+        <a class="nav-link" href="#scene">Сцена</a>
       </nav>
+
+      <div class="topbar-actions">
+        <div class="xp-box">
+          <span>XP</span>
+          <strong id="xp-total">0</strong>
+        </div>
+        <button class="ghost-button" id="reset-progress" type="button">Сбросить прогресс</button>
+      </div>
     </header>
 
-    <main class="site-main">
-      <section class="app-section is-active" id="home" data-section="home" tabindex="-1">
-        <div class="hero">
-          <div class="hero-copy">
-            <p class="eyebrow">MVP • file:// • без backend</p>
-            <h1>Учебный сайт-тренажёр по стереометрии</h1>
-            <p class="hero-lead">
-              Здесь можно читать темы, смотреть формулы, переключать тела, крутить сцену мышью
-              и сразу видеть, как меняются площадь поверхности и объём.
-            </p>
-            <div class="hero-actions">
-              <a class="hero-button" href="#course">Курс</a>
-              <a class="hero-button" href="#theory">Теория</a>
-              <a class="hero-button" href="#scene">Сцена</a>
-            </div>
+    <main class="layout">
+      <aside class="sidebar panel">
+        <h2>Mateon</h2>
+
+        <div class="sidebar-actions">
+          <a class="button secondary" href="#theory">Темы</a>
+          <a class="button secondary" href="#tests">Тесты</a>
+          <a class="button secondary" href="#scene">Сцена</a>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="title-row">
+            <h3>Темы</h3>
+            <span class="badge" id="topic-count">0</span>
           </div>
-
-          <aside class="hero-panel">
-            <h2>Что уже в MVP</h2>
-            <ul class="feature-list">
-              <li>4 раздела с hash-навигацией без перезагрузки</li>
-              <li>Canvas viewer с собственной 3D-математикой</li>
-              <li>16 тел, подсветка вершин, рёбер и граней</li>
-              <li>Каталог 2D-графиков с отдельной плоскостью просмотра</li>
-              <li>Расширенный набор тем с блоками: теория, формулы, визуализация, примеры</li>
-            </ul>
-          </aside>
+          <div id="topic-shortcuts" class="shortcut-list"></div>
         </div>
+      </aside>
 
-        <div class="home-grid">
-          <article class="info-card">
-            <h2>Как работать</h2>
-            <p>
-              Откройте тему в разделе курса или теории, затем нажмите «Показать в сцене».
-              Маршрут переведёт вас в viewer и применит подходящий пресет фигуры.
-            </p>
-          </article>
-          <article class="info-card">
-            <h2>Управление сценой</h2>
-            <p>
-              Зажмите левую кнопку мыши или касание и вращайте фигуру. Колесо мыши управляет
-              приближением, а переключатели справа включают слои подсветки.
-            </p>
-          </article>
-          <article class="info-card">
-            <h2>Формулы и метрики</h2>
-            <p>
-              Панель формул показывает общие выражения и числовую подстановку, а метрики
-              обновляются мгновенно при изменении параметров тела или масштаба 2D-графика.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="app-section" id="course" data-section="course" tabindex="-1" hidden>
-        <div class="section-heading">
-          <p class="eyebrow">Курс</p>
-          <h2>Пошаговый маршрут по ключевым темам</h2>
-          <p>Каждая карточка даёт краткую теорию, формулы, образ визуализации и маленький пример.</p>
-        </div>
-        <div class="cards-grid" id="course-cards"></div>
-      </section>
-
-      <section class="app-section" id="theory" data-section="theory" tabindex="-1" hidden>
-        <div class="section-heading">
-          <p class="eyebrow">Теория</p>
-          <h2>Справочник по стереометрии</h2>
-          <p>Здесь тот же набор тем подан как справочная база для повторения и быстрого доступа.</p>
-        </div>
-        <div class="cards-grid cards-grid--theory" id="theory-cards"></div>
-      </section>
-
-      <section class="app-section" id="scene" data-section="scene" tabindex="-1" hidden>
-        <div class="section-heading">
-          <p class="eyebrow">Сцена</p>
-          <h2>Интерактивный viewer</h2>
-          <p>Переключайтесь между телами и 2D-графиками, меняйте параметры и исследуйте форму на одной сцене.</p>
-        </div>
-
-        <div class="scene-layout">
-          <div class="scene-stage">
-            <div class="scene-toolbar">
-              <div>
-                <p class="toolbar-label" id="toolbar-label">Активный объект</p>
-                <h3 id="figure-title">Куб</h3>
-              </div>
-              <p class="scene-hint" id="preset-label">Базовый режим просмотра</p>
+      <section class="content">
+        <section class="panel main-panel">
+          <div class="title-row">
+            <div>
+              <h2 id="view-title">Главная</h2>
             </div>
-
-            <div class="canvas-frame" id="canvas-frame">
-              <canvas id="scene-canvas" width="960" height="640" aria-label="3D сцена"></canvas>
-              <div class="canvas-overlay">
-                <span>ЛКМ / касание: вращение</span>
-                <span>Колесо: масштаб</span>
-              </div>
-            </div>
+            <span class="badge" id="route-badge">#home</span>
           </div>
-
-          <aside class="scene-sidebar">
-            <section class="panel">
-              <div class="panel-header">
-                <h3 id="scene-control-title">Управление телом</h3>
-                <p id="figure-description">Регулярное тело с равными рёбрами и квадратными гранями.</p>
-              </div>
-              <label class="field">
-                <span>Режим просмотра</span>
-                <select id="view-mode-select">
-                  <option value="solid">3D тела</option>
-                  <option value="graph">2D графики</option>
-                </select>
-              </label>
-              <label class="field" id="solid-field">
-                <span>Фигура</span>
-                <select id="figure-select"></select>
-              </label>
-              <label class="field is-hidden" id="graph-field">
-                <span>График функции</span>
-                <select id="graph-select"></select>
-              </label>
-              <div class="field-group" id="highlight-group">
-                <span class="field-label">Подсветки</span>
-                <label class="toggle">
-                  <input type="checkbox" id="toggle-faces" checked>
-                  <span>Грани</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" id="toggle-edges" checked>
-                  <span>Рёбра</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" id="toggle-vertices">
-                  <span>Вершины</span>
-                </label>
-              </div>
-              <label class="field">
-                <span>Камера</span>
-                <select id="projection-select">
-                  <option value="perspective">3D перспектива</option>
-                  <option value="graph2d">2D плоскость</option>
-                </select>
-              </label>
-              <div class="field-group" id="section-group">
-                <span class="field-label">Сечение</span>
-                <label class="toggle">
-                  <input type="checkbox" id="toggle-section">
-                  <span>Показать секущую плоскость</span>
-                </label>
-              </div>
-              <div class="params-grid is-hidden" id="section-controls">
-                <div class="param-control">
-                  <label for="section-offset">
-                    <span>Смещение плоскости</span>
-                    <strong id="section-offset-value">0</strong>
-                  </label>
-                  <input id="section-offset" type="range" min="-8" max="8" step="0.1" value="0">
-                </div>
-                <div class="param-control">
-                  <label for="section-tilt-x">
-                    <span>Наклон к оси X</span>
-                    <strong id="section-tilt-x-value">0°</strong>
-                  </label>
-                  <input id="section-tilt-x" type="range" min="-70" max="70" step="1" value="0">
-                </div>
-                <div class="param-control">
-                  <label for="section-tilt-z">
-                    <span>Наклон к оси Z</span>
-                    <strong id="section-tilt-z-value">0°</strong>
-                  </label>
-                  <input id="section-tilt-z" type="range" min="-70" max="70" step="1" value="0">
-                </div>
-              </div>
-              <div class="params-grid" id="params-grid"></div>
-            </section>
-
-            <section class="panel metrics-panel">
-              <div class="panel-header">
-                <h3>Метрики</h3>
-                <p>Значения вычисляются из текущих параметров активной фигуры.</p>
-              </div>
-              <dl class="metrics-list">
-                <div>
-                  <dt id="metric-primary-label">Площадь поверхности S</dt>
-                  <dd id="metric-surface">0</dd>
-                </div>
-                <div>
-                  <dt id="metric-secondary-label">Объём V</dt>
-                  <dd id="metric-volume">0</dd>
-                </div>
-                <div class="is-hidden" id="metric-section-wrap">
-                  <dt id="metric-section-label">Площадь сечения</dt>
-                  <dd id="metric-section">0</dd>
-                </div>
-              </dl>
-              <p class="metric-note" id="metric-note"></p>
-            </section>
-
-            <section class="panel">
-              <div class="panel-header">
-                <h3>Формулы</h3>
-                <p>Общие выражения и подстановка текущих чисел для выбранного тела.</p>
-              </div>
-              <label class="toggle toggle--wide">
-                <input type="checkbox" id="toggle-formula-values" checked>
-                <span>Показать числовую подстановку</span>
-              </label>
-              <div class="formula-panel" id="formula-panel"></div>
-            </section>
-          </aside>
-        </div>
+          <div id="view-root"></div>
+        </section>
       </section>
     </main>
   </div>
-
-  <script src="./script.js"></script>
 </body>
 </html>
