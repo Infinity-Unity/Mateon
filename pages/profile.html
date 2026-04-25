@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mateon — профиль обучения с пройденными материалами, XP и прогрессом по темам.">
+  <title>Mateon — Профиль</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/styles.css">
+  <script src="../course-data.js" defer></script>
+  <script type="module" src="../js/profile.js"></script>
+</head>
+<body data-page="profile">
+  <div class="app">
+    <header class="topbar panel">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">M</div>
+        <div class="brand-meta">
+          <h1>Mateon</h1>
+          <p class="brand-subtitle">Профиль и прогресс</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Навигация">
+        <a class="nav-link" data-page-link="home" href="./index.html">Главная</a>
+        <a class="nav-link" data-page-link="theory" href="./theory.html">Теория</a>
+        <a class="nav-link" data-page-link="tests" href="./tests.html">Тесты</a>
+        <a class="nav-link" data-page-link="scene" href="./scene.html">Сцена</a>
+        <a class="nav-link active" data-page-link="profile" href="./profile.html">Профиль</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <div class="xp-box" aria-live="polite">
+          <span>XP</span>
+          <strong id="xp-total">0</strong>
+        </div>
+        <button class="ghost-button" id="reset-progress" type="button">Сбросить прогресс</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar panel" aria-label="Боковая панель">
+        <h2>Профиль</h2>
+
+        <div class="sidebar-actions">
+          <a class="button secondary" href="./theory.html">Темы</a>
+          <a class="button secondary" href="./tests.html">Тесты</a>
+          <a class="button secondary" href="./scene.html">Сцена</a>
+          <a class="button secondary" href="./profile.html">Профиль</a>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="title-row">
+            <h3>Темы курса</h3>
+            <span class="badge" id="topic-count">0</span>
+          </div>
+          <div id="topic-shortcuts" class="shortcut-list"></div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section class="panel main-panel">
+          <div class="title-row">
+            <div>
+              <h2 id="view-title">Профиль</h2>
+            </div>
+            <span class="badge" id="route-badge">#profile</span>
+          </div>
+          <div id="view-root"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+
